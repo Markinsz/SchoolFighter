@@ -1,9 +1,14 @@
-using UnityEngine; 
+using System.Collections;
+using Unity.VisualScripting;
+using UnityEngine;
+using UnityEngine.InputSystem;
+
 
 public class PlayerController : MonoBehaviour
 {
     private Rigidbody2D playerRigidBody;
     public float playerSpeed = 1f;
+    public float currentSpeed;
 
     public Vector2 playerDirection;
 
@@ -11,7 +16,19 @@ public class PlayerController : MonoBehaviour
 
     private Animator playerAnimator;
 
+    //Player olhando para a direita
     private bool playerFacingRight = true;
+
+    //Variável contadora
+    private int PunchCount;
+
+    //Tempo de Ataque
+    private float timeCross = 0.75f;
+
+    private bool comboControl;
+    
+    //Indicar se Player está morto
+    private bool isDead;
 
     void Start()
     {
@@ -19,7 +36,9 @@ public class PlayerController : MonoBehaviour
         playerRigidBody = GetComponent<Rigidbody2D>();  
 
         //Obtem e inicializa as propriedades do animator
-        playerAnimator = GetComponent<Animator>();  
+        playerAnimator = GetComponent<Animator>(); 
+
+        currentSpeed = playerSpeed;
     }
 
     // Update is called once per frame
@@ -28,6 +47,29 @@ public class PlayerController : MonoBehaviour
         PlayerMove();
 
         UpdateAnimator();
+
+
+        if (Input.GetKeyDown(KeyCode.X))
+        {
+               if (PunchCount < 2)
+                {
+                    PlayerJab();
+                    PunchCount++;
+                    if (!comboControl)
+                    {
+                        //Iniciar o temporizador
+                        StartCoroutine(CrossController());
+                    }
+                }
+               else if (PunchCount >= 2)
+                {
+                    PlayerCross();
+                    PunchCount = 0;
+                }
+            //Parando o temporizador
+            StopCoroutine(CrossController());
+        }
+
     }
 
     //Fixed Update geralmente é utilizada para implementação de física no jogo
@@ -44,7 +86,8 @@ public class PlayerController : MonoBehaviour
             isWalking = false;
         }
 
-        playerRigidBody.MovePosition(playerRigidBody.position + playerSpeed * Time.fixedDeltaTime * playerDirection);
+        //playerRigidBody.MovePosition(playerRigidBody.position + playerSpeed * Time.fixedDeltaTime * playerDirection);
+        playerRigidBody.MovePosition(playerRigidBody.position + currentSpeed * Time.fixedDeltaTime * playerDirection);
     }
 
     void PlayerMove()
@@ -78,5 +121,39 @@ public class PlayerController : MonoBehaviour
         //Girar o sprite do player em 180° no eixo Y
         //               x,  y , z
         transform.Rotate(0, 180, 0);
+    }
+
+    void PlayerJab()
+    {
+        //Acessa animação do Jab
+        //Ativa o gatilho de Ataque;
+        playerAnimator.SetTrigger("isJabbing");
+    }
+
+    void PlayerCross()
+    {
+        //Acessa animação do Cross
+        //Ativa o gatilho do Ataque;
+        playerAnimator.SetTrigger("isCrossing");
+    }
+
+    IEnumerator CrossController ()
+    {
+        comboControl = true;
+
+        yield return new WaitForSeconds(timeCross);
+        PunchCount = 0;
+
+        comboControl = false;
+    }
+
+    void ZeroSpeed()
+    {
+        currentSpeed = 0;
+    }
+
+    void ResetSpeed()
+    {
+        currentSpeed = playerSpeed;
     }
 }
