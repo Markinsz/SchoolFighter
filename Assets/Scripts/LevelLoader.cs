@@ -15,12 +15,22 @@ public class LevelLoader : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        string CenaAtual = SceneManager.GetActiveScene().name;
+
         ////Se pressionar qualquer tecla
         if (Input.GetKeyDown(KeyCode.Return))
         {
-            //Mudar de Cena
-            StartCoroutine(CarregarFase("Fase1"));
+            if (CenaAtual == "TelaInicial")
+            { 
+                //Mudar de Cena
+                StartCoroutine(CarregarFase("Fase1"));
+            }
+            else if (CenaAtual == "GameOver")
+            {
+                StartCoroutine(CarregarFase("TelaInicial"));
+            }
         }
+       
     }
 
     //Corrotina - Coroutine

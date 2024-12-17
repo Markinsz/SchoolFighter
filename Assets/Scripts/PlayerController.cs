@@ -28,7 +28,18 @@ public class PlayerController : MonoBehaviour
     private bool comboControl;
     
     //Indicar se Player está morto
-    private bool isDead;
+    public bool isDead;
+
+    //Propriedades para UI
+    public int maxHealth = 10;
+    public int currentHealth;
+    public Sprite playerImage;
+
+    //SFX do player
+    private AudioSource playerAudioSource;
+
+    public AudioClip jabSound;
+    
 
     void Start()
     {
@@ -39,6 +50,10 @@ public class PlayerController : MonoBehaviour
         playerAnimator = GetComponent<Animator>(); 
 
         currentSpeed = playerSpeed;
+
+        currentHealth = maxHealth;
+
+        playerAudioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -88,6 +103,11 @@ public class PlayerController : MonoBehaviour
 
         //playerRigidBody.MovePosition(playerRigidBody.position + playerSpeed * Time.fixedDeltaTime * playerDirection);
         playerRigidBody.MovePosition(playerRigidBody.position + currentSpeed * Time.fixedDeltaTime * playerDirection);
+
+        if (currentHealth <= 0)
+        {
+            isDead = true;
+        }
     }
 
     void PlayerMove()
@@ -128,6 +148,10 @@ public class PlayerController : MonoBehaviour
         //Acessa animação do Jab
         //Ativa o gatilho de Ataque;
         playerAnimator.SetTrigger("isJabbing");
+
+        playerAudioSource.clip = jabSound;
+
+        playerAudioSource.Play();
     }
 
     void PlayerCross()
@@ -135,6 +159,10 @@ public class PlayerController : MonoBehaviour
         //Acessa animação do Cross
         //Ativa o gatilho do Ataque;
         playerAnimator.SetTrigger("isCrossing");
+
+        playerAudioSource.clip = jabSound;
+
+        playerAudioSource.Play();
     }
 
     IEnumerator CrossController ()
@@ -155,5 +183,15 @@ public class PlayerController : MonoBehaviour
     void ResetSpeed()
     {
         currentSpeed = playerSpeed;
+    }
+
+    public void TakeDamage(int damage)
+    {
+        if (!isDead)
+        {
+            currentHealth -= damage;
+            playerAnimator.SetTrigger("HitDamage");
+            FindFirstObjectByType<UIManager>().UpdatePlayerHealth(currentHealth);
+        }
     }
 }
