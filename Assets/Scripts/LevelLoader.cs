@@ -17,11 +17,13 @@ public class LevelLoader : MonoBehaviour
     {
         string CenaAtual = SceneManager.GetActiveScene().name;
 
+        //PlayerController playerDeath = GetComponent<PlayerController>();
+
         ////Se pressionar qualquer tecla
         if (Input.GetKeyDown(KeyCode.Return))
         {
             if (CenaAtual == "TelaInicial")
-            { 
+            {
                 //Mudar de Cena
                 StartCoroutine(CarregarFase("Fase1"));
             }
@@ -29,12 +31,23 @@ public class LevelLoader : MonoBehaviour
             {
                 StartCoroutine(CarregarFase("TelaInicial"));
             }
+            //else if (playerDeath != null)
+            //{
+            //    if (playerDeath.isDead == true)
+            //    {
+            //        StartCoroutine(CarregarFase("GameOver"));
+            //    }
+            //}
+            //else
+            //{
+            //    Debug.LogError("playerDeath não foi encontrado ou atribuído!");
+            //}
         }
        
     }
 
     //Corrotina - Coroutine
-    IEnumerator CarregarFase(string nomeFase)
+    public IEnumerator CarregarFase(string nomeFase)
     {
         transition.SetTrigger("Start");
         

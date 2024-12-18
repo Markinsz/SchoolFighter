@@ -2,6 +2,7 @@ using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 
 public class PlayerController : MonoBehaviour
@@ -39,7 +40,7 @@ public class PlayerController : MonoBehaviour
     private AudioSource playerAudioSource;
 
     public AudioClip jabSound;
-    
+
 
     void Start()
     {
@@ -103,11 +104,6 @@ public class PlayerController : MonoBehaviour
 
         //playerRigidBody.MovePosition(playerRigidBody.position + playerSpeed * Time.fixedDeltaTime * playerDirection);
         playerRigidBody.MovePosition(playerRigidBody.position + currentSpeed * Time.fixedDeltaTime * playerDirection);
-
-        if (currentHealth <= 0)
-        {
-            isDead = true;
-        }
     }
 
     void PlayerMove()
@@ -187,11 +183,30 @@ public class PlayerController : MonoBehaviour
 
     public void TakeDamage(int damage)
     {
+
         if (!isDead)
         {
             currentHealth -= damage;
             playerAnimator.SetTrigger("HitDamage");
             FindFirstObjectByType<UIManager>().UpdatePlayerHealth(currentHealth);
         }
+
+        if (currentHealth <= 0)
+        {
+            isDead = true;
+
+            //Corrige bug do inimigo deslizar após morte
+            playerRigidBody.linearVelocity = Vector2.zero;
+
+            playerAnimator.SetTrigger("isDead");
+
+            SceneManager.LoadScene("GameOver");
+        }
+    }
+
+    public void DisablePlayer()
+    {
+        // Desabilita este inimigo
+        this.gameObject.SetActive(false);
     }
 }
